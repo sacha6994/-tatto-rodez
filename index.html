@@ -1188,14 +1188,15 @@
 
   @media (max-width: 768px) {
     .process-timeline {
-      grid-template-columns: 40px 1fr;
-      gap: 0 1rem;
+      grid-template-columns: 36px 1fr;
+      gap: 0 0.8rem;
     }
     .process-timeline::before {
-      left: 20px;
+      left: 18px;
     }
     .process-step-visual { display: none; }
-    .process-step-number { width: 40px; height: 40px; font-size: 1rem; }
+    .process-step-number { width: 36px; height: 36px; font-size: 0.9rem; }
+    .process-step-content { padding: 1.2rem 1rem; }
   }
 
   /* === TESTIMONIALS === */
@@ -1490,6 +1491,11 @@
   .reveal-delay-3 { transition-delay: 0.3s; }
 
   /* === RESPONSIVE === */
+
+  /* Global mobile safety */
+  html, body { overflow-x: hidden; }
+  img { max-width: 100%; height: auto; }
+
   @media (max-width: 1024px) {
     .specs-grid { grid-template-columns: repeat(2, 1fr); }
     .gallery-grid { grid-template-columns: repeat(3, 1fr); }
@@ -1497,43 +1503,184 @@
   }
 
   @media (max-width: 768px) {
-    nav { padding: 1rem 1.5rem; }
+    /* --- Navigation --- */
+    nav { padding: 0.8rem 1rem; }
     .nav-links { display: none; }
     .hamburger { display: flex; }
-    
-    section { padding: 5rem 1.5rem; }
-    
-    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
-    .about-image { max-width: 400px; margin: 0 auto; }
-    
-    .specs-grid { grid-template-columns: 1fr; }
-    
-    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-    
-    .gallery-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-    .gallery-filters { flex-wrap: wrap; }
-    
+    .nav-logo { font-size: 1.1rem; }
+    .nav-cta {
+      font-size: 0.6rem;
+      padding: 0.5rem 1rem;
+      letter-spacing: 0.15em;
+    }
+
+    /* --- General sections --- */
+    section { padding: 4rem 1rem; }
+
+    /* --- Hero --- */
+    .hero-content { padding: 0 1rem; }
+    .hero-pre { font-size: 0.65rem; letter-spacing: 0.3em; margin-bottom: 1.5rem; }
+    .hero-title { font-size: clamp(2.2rem, 10vw, 4rem); }
+    .hero-subtitle { font-size: clamp(0.9rem, 3vw, 1.2rem); margin-bottom: 2rem; }
+    .hero-cta {
+      font-size: 0.7rem;
+      padding: 0.9rem 1.8rem;
+      letter-spacing: 0.2em;
+    }
+    .moon { width: 50px; height: 50px; top: 10%; right: 5%; }
+
+    /* --- Stats --- */
+    .stats-row {
+      flex-direction: row;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; min-width: 0; flex: 1; }
+    .stat-item h3 { font-size: 1.6rem; }
+    .stat-item p { font-size: 0.6rem; letter-spacing: 0.2em; }
+
+    /* --- About --- */
+    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .about-image { max-width: 100%; margin: 0 auto; }
+
+    /* --- Spécialités --- */
+    .specs-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .spec-card { padding: 2rem 1.2rem; }
+    .spec-card h3 { font-size: 1rem; }
+    .spec-card p { font-size: 0.9rem; }
+    .specialties-header h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+
+    /* --- Galerie --- */
+    .gallery-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .gallery-filters {
+      display: flex;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap;
+      gap: 0.6rem;
+      width: 100%;
+      padding-bottom: 0.5rem;
+      scrollbar-width: none;
+    }
+    .gallery-filters::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 0.6rem;
+      padding: 0.5rem 1rem;
+    }
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .gallery-item-info h4 { font-size: 0.75rem; }
+    .gallery-badge { font-size: 0.5rem; padding: 0.2rem 0.5rem; }
+    .btn-load-more {
+      font-size: 0.65rem;
+      padding: 0.7rem 2rem;
+    }
+    .gallery-load-more { margin-top: 1.5rem; }
+
+    /* --- Processus --- */
+    .process-header h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
     .process-step-number {
       width: 40px;
       height: 40px;
       font-size: 1rem;
     }
+    .process-step-content {
+      padding: 1.5rem 1rem;
+    }
+    .process-step-content h3 { font-size: 1rem; }
+    .process-step-content p { font-size: 0.9rem; }
 
-    .testimonial-cards { grid-template-columns: 1fr; }
-    
-    .contact-info { gap: 2rem; }
+    /* --- Avis --- */
+    .testimonial-cards { grid-template-columns: 1fr; gap: 1.5rem; }
+    .testimonial-card { padding: 2rem 1.2rem; }
+    .testimonial-text { font-size: 0.95rem; line-height: 1.7; }
+    .testimonials-header h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
 
-    .moon { width: 70px; height: 70px; top: 12%; right: 8%; }
+    /* --- Contact --- */
+    .contact { padding: 5rem 1rem; }
+    .contact-title { font-size: clamp(1.5rem, 5vw, 2.5rem); }
+    .contact-text { font-size: 1rem; }
+    .contact-info {
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .contact-buttons {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+    .btn-primary, .btn-secondary {
+      width: 100%;
+      text-align: center;
+      font-size: 0.7rem;
+      padding: 1rem 1.5rem;
+    }
 
-    .stats-row { gap: 2rem; }
-    .stat-item h3 { font-size: 2rem; }
+    /* --- Footer --- */
+    footer { padding: 3rem 1rem 1.5rem; }
+    .footer-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 1.5rem;
+    }
+    .footer-social { justify-content: center; }
+    .footer-social a {
+      width: 44px;
+      height: 44px;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.8rem;
+      padding-top: 1.5rem;
+    }
+    .footer-links {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .footer-links span:empty,
+    .footer-links span:not([class]) { display: none; }
+    .footer-bottom a,
+    .footer-bottom span {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   @media (max-width: 480px) {
-    .gallery-grid { grid-template-columns: 1fr; }
-    .contact-buttons { flex-direction: column; align-items: center; }
-    .footer-content { flex-direction: column; text-align: center; }
-    .footer-bottom { flex-direction: column; text-align: center; gap: 0.5rem; }
+    /* --- Hero petit écran --- */
+    .hero-title { font-size: clamp(1.8rem, 12vw, 2.8rem); }
+    .hero-pre { font-size: 0.6rem; letter-spacing: 0.2em; }
+    .hero-subtitle { font-size: 0.85rem; }
+    .hero-cta { font-size: 0.65rem; padding: 0.8rem 1.5rem; }
+    .moon { width: 40px; height: 40px; top: 8%; right: 4%; }
+
+    /* --- Stats compact 3 colonnes --- */
+    .stats-row { gap: 0.8rem; }
+    .stat-item h3 { font-size: 1.3rem; }
+    .stat-item p { font-size: 0.55rem; letter-spacing: 0.15em; }
+
+    /* --- Galerie 1 colonne --- */
+    .gallery-grid { grid-template-columns: 1fr; gap: 10px; }
+    .gallery-item { aspect-ratio: 4/5; }
+
+    /* --- Spécialités --- */
+    .spec-card { padding: 1.5rem 1rem; }
+
+    /* --- Contact full width --- */
+    .contact-buttons { max-width: 100%; }
   }
 
   /* Cookie banner */
@@ -1662,8 +1809,15 @@
   .footer-links span { color: rgba(240,240,240,0.2); }
 
   @media (max-width: 768px) {
-    .cookie-banner { flex-direction: column; text-align: center; gap: 1rem; padding: 1rem; }
-    .mentions-content { padding: 2rem 1.5rem; }
+    .cookie-banner {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.8rem;
+      padding: 1rem;
+    }
+    .cookie-banner p { font-size: 0.8rem; }
+    .mentions-content { padding: 1.5rem 1rem; }
+    .mentions-content h2 { font-size: 1.2rem; }
   }
 
   /* Mobile nav open */
@@ -1677,9 +1831,16 @@
     align-items: center;
     gap: 2.5rem;
     z-index: 1000;
+    padding: 2rem;
   }
 
-  .nav-links.open a { font-size: 1rem; }
+  .nav-links.open a {
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
 </style>
 </head>
 <body>

@@ -25,6 +25,8 @@ collections:
   - name: "gallery"
     label: "🖼️ Galerie — Tatouages"
     folder: "content/gallery"
+    extension: "json"
+    format: "json"
     create: true
     slug: "{{slug}}"
     label_singular: "Tatouage"

@@ -39,10 +39,18 @@ function parseFrontmatter(content) {
 function readCollection(folder) {
   const items = [];
   if (!fs.existsSync(folder)) return items;
-  for (const file of fs.readdirSync(folder).filter(f => f.endsWith('.md')).sort()) {
-    const content = fs.readFileSync(path.join(folder, file), 'utf8');
-    const data = parseFrontmatter(content);
-    if (data) items.push(data);
+  for (const file of fs.readdirSync(folder).sort()) {
+    const filePath = path.join(folder, file);
+    if (file.endsWith('.json')) {
+      try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (data && typeof data === 'object') items.push(data);
+      } catch(e) { /* skip invalid JSON */ }
+    } else if (file.endsWith('.md')) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      const data = parseFrontmatter(content);
+      if (data) items.push(data);
+    }
   }
   return items;
 }
@@ -56,6 +64,18 @@ function cdnUrl(imagePath, width) {
   return `/.netlify/images?url=${encodeURIComponent(imagePath)}&w=${width}&q=75&fm=webp`;
 }
 
+// Check if a local image exists, return placeholder URL if not
+function resolveImage(imagePath, title) {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('http')) return { url: imagePath, external: true };
+  // Check if local file exists in source tree
+  const localPath = path.join(__dirname, imagePath);
+  if (fs.existsSync(localPath)) return { url: imagePath, external: false };
+  // Fallback to placehold.co
+  const text = encodeURIComponent(title || 'Tattoo');
+  return { url: `https://placehold.co/600x800/111111/888888?text=${text}`, external: true };
+}
+
 // Generate a single gallery card
 function galleryCard(item, index) {
   const title = escapeHtml(item.title || '');
@@ -63,11 +83,18 @@ function galleryCard(item, index) {
   const delay = index > 0 ? ` reveal-delay-${Math.min((index % 3) + 1, 3)}` : '';
   const lazy = index > 0 ? ' loading="lazy"' : '';
 
-  if (item.image) {
-    const src = cdnUrl(item.image, 600);
-    const srcset = [400, 600, 900].map(w => `${cdnUrl(item.image, w)} ${w}w`).join(', ');
+  const resolved = resolveImage(item.image, item.title);
+  if (resolved) {
+    let src, srcset;
+    if (resolved.external) {
+      src = resolved.url;
+      srcset = '';
+    } else {
+      src = cdnUrl(resolved.url, 600);
+      srcset = ` srcset="${[400, 600, 900].map(w => `${cdnUrl(resolved.url, w)} ${w}w`).join(', ')}"`;
+    }
     return `    <div class="gallery-item reveal${delay}" data-category="${cat}">
-      <img src="${src}" srcset="${srcset}" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"${lazy} decoding="async" alt="${title}" />
+      <img src="${src}"${srcset} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"${lazy} decoding="async" alt="${title}" />
       <div class="gallery-item-overlay">
         <div class="gallery-item-info">
           <span class="gallery-badge">${cat}</span>
@@ -77,7 +104,7 @@ function galleryCard(item, index) {
     </div>`;
   }
 
-  // Placeholder for items without image
+  // Placeholder for items without image at all
   return `    <div class="gallery-item reveal${delay}" data-category="${cat}">
       <div class="gallery-placeholder"></div>
       <div class="gallery-item-overlay" style="opacity:1">
@@ -121,17 +148,16 @@ let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 const gallery = readCollection(path.join(__dirname, 'content', 'gallery'));
 const reviews = readCollection(path.join(__dirname, 'content', 'reviews'));
 
-// 3. Inject gallery cards (only if at least one item has an image)
-const galleryWithImages = gallery.filter(i => i.image);
-if (galleryWithImages.length > 0) {
-  const cards = galleryWithImages.map((item, i) => galleryCard(item, i)).join('\n');
+// 3. Inject gallery cards
+if (gallery.length > 0) {
+  const cards = gallery.map((item, i) => galleryCard(item, i)).join('\n');
   html = html.replace(
     /<!-- GALLERY_ITEMS_START -->[\s\S]*?<!-- GALLERY_ITEMS_END -->/,
     `<!-- GALLERY_ITEMS_START -->\n${cards}\n    <!-- GALLERY_ITEMS_END -->`
   );
-  console.log(`  -> gallery: ${galleryWithImages.length} items with images injected`);
+  console.log(`  -> gallery: ${gallery.length} items injected`);
 } else {
-  console.log(`  -> gallery: keeping static fallback (no CMS images yet)`);
+  console.log(`  -> gallery: keeping static fallback (no content yet)`);
 }
 
 // 4. Inject review cards (always, even without images)
