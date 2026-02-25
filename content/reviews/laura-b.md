@@ -1,0 +1,5 @@
+---
+name: "Laura B."
+body: "J'ai fait tatouer le portrait de mon chat et c'est juste parfait. On dirait une photo sur ma peau. Un vrai artiste."
+type: "Portrait animalier"
+---

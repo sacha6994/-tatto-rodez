@@ -1,0 +1,171 @@
+const fs = require('fs');
+const path = require('path');
+
+const PUBLIC = path.join(__dirname, 'public');
+
+// --- Helpers ---
+
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+function copyDir(src, dest) {
+  ensureDir(dest);
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, entry.name);
+    const d = path.join(dest, entry.name);
+    entry.isDirectory() ? copyDir(s, d) : fs.copyFileSync(s, d);
+  }
+}
+
+function parseFrontmatter(content) {
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) return null;
+  const data = {};
+  for (const line of match[1].split('\n')) {
+    const sep = line.indexOf(':');
+    if (sep === -1) continue;
+    const key = line.slice(0, sep).trim();
+    let val = line.slice(sep + 1).trim();
+    if ((val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    data[key] = val;
+  }
+  return data;
+}
+
+function readCollection(folder) {
+  const items = [];
+  if (!fs.existsSync(folder)) return items;
+  for (const file of fs.readdirSync(folder).filter(f => f.endsWith('.md')).sort()) {
+    const content = fs.readFileSync(path.join(folder, file), 'utf8');
+    const data = parseFrontmatter(content);
+    if (data) items.push(data);
+  }
+  return items;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Netlify Image CDN URL builder
+function cdnUrl(imagePath, width) {
+  return `/.netlify/images?url=${encodeURIComponent(imagePath)}&w=${width}&q=75&fm=webp`;
+}
+
+// Generate a single gallery card
+function galleryCard(item, index) {
+  const title = escapeHtml(item.title || '');
+  const cat = escapeHtml(item.category || '');
+  const delay = index > 0 ? ` reveal-delay-${Math.min((index % 3) + 1, 3)}` : '';
+  const lazy = index > 0 ? ' loading="lazy"' : '';
+
+  if (item.image) {
+    const src = cdnUrl(item.image, 600);
+    const srcset = [400, 600, 900].map(w => `${cdnUrl(item.image, w)} ${w}w`).join(', ');
+    return `    <div class="gallery-item reveal${delay}" data-category="${cat}">
+      <img src="${src}" srcset="${srcset}" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"${lazy} decoding="async" alt="${title}" />
+      <div class="gallery-item-overlay">
+        <div class="gallery-item-info">
+          <span class="gallery-badge">${cat}</span>
+          <h4>${title}</h4>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Placeholder for items without image
+  return `    <div class="gallery-item reveal${delay}" data-category="${cat}">
+      <div class="gallery-placeholder"></div>
+      <div class="gallery-item-overlay" style="opacity:1">
+        <div class="gallery-item-info">
+          <span class="gallery-badge">${cat}</span>
+          <h4>${title}</h4>
+        </div>
+      </div>
+    </div>`;
+}
+
+// Generate a single review card
+function reviewCard(item, index) {
+  const name = escapeHtml(item.name || '');
+  const body = escapeHtml(item.body || '');
+  const type = escapeHtml(item.type || '');
+  const initial = name.charAt(0).toUpperCase();
+  const delay = index > 0 ? ` reveal-delay-${Math.min(index, 2)}` : '';
+
+  return `    <div class="testimonial-card reveal${delay}">
+      <div class="stars">★ ★ ★ ★ ★</div>
+      <p class="testimonial-text">${body}</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">${initial}</div>
+        <div class="testimonial-author-info">
+          <h4>${name}</h4>
+          <p>${type}</p>
+        </div>
+      </div>
+    </div>`;
+}
+
+// --- Build ---
+
+console.log('Building Redmoon Tattoo...');
+
+// 1. Read source index.html
+let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+
+// 2. Read collections
+const gallery = readCollection(path.join(__dirname, 'content', 'gallery'));
+const reviews = readCollection(path.join(__dirname, 'content', 'reviews'));
+
+// 3. Inject gallery cards (only if at least one item has an image)
+const galleryWithImages = gallery.filter(i => i.image);
+if (galleryWithImages.length > 0) {
+  const cards = galleryWithImages.map((item, i) => galleryCard(item, i)).join('\n');
+  html = html.replace(
+    /<!-- GALLERY_ITEMS_START -->[\s\S]*?<!-- GALLERY_ITEMS_END -->/,
+    `<!-- GALLERY_ITEMS_START -->\n${cards}\n    <!-- GALLERY_ITEMS_END -->`
+  );
+  console.log(`  -> gallery: ${galleryWithImages.length} items with images injected`);
+} else {
+  console.log(`  -> gallery: keeping static fallback (no CMS images yet)`);
+}
+
+// 4. Inject review cards (always, even without images)
+if (reviews.length > 0) {
+  const cards = reviews.map((item, i) => reviewCard(item, i)).join('\n');
+  html = html.replace(
+    /<!-- REVIEWS_ITEMS_START -->[\s\S]*?<!-- REVIEWS_ITEMS_END -->/,
+    `<!-- REVIEWS_ITEMS_START -->\n${cards}\n    <!-- REVIEWS_ITEMS_END -->`
+  );
+  console.log(`  -> reviews: ${reviews.length} items injected`);
+}
+
+// 5. Write output
+ensureDir(PUBLIC);
+fs.writeFileSync(path.join(PUBLIC, 'index.html'), html);
+
+// 6. Copy admin panel
+copyDir(path.join(__dirname, 'admin'), path.join(PUBLIC, 'admin'));
+
+// 7. Create _redirects
+fs.writeFileSync(path.join(PUBLIC, '_redirects'), '/admin/* /admin/index.html 200\n');
+
+// 8. Ensure uploads directory
+ensureDir(path.join(PUBLIC, 'images', 'uploads'));
+
+// 9. Generate data JSON files (for JS dynamic fetch)
+const dataDir = path.join(PUBLIC, 'data');
+ensureDir(dataDir);
+
+const settingsPath = path.join(__dirname, 'content', 'settings.json');
+if (fs.existsSync(settingsPath)) {
+  fs.copyFileSync(settingsPath, path.join(dataDir, 'settings.json'));
+}
+fs.writeFileSync(path.join(dataDir, 'gallery.json'), JSON.stringify(gallery, null, 2));
+fs.writeFileSync(path.join(dataDir, 'reviews.json'), JSON.stringify(reviews, null, 2));
+
+console.log('Build complete!');

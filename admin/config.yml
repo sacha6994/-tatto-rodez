@@ -1,0 +1,47 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+locale: 'fr'
+
+collections:
+
+  - name: "settings"
+    label: "⚙️ Paramètres généraux"
+    files:
+      - name: "general"
+        label: "Infos du studio"
+        file: "content/settings.json"
+        fields:
+          - { label: "Followers Instagram", name: "followers", widget: "string" }
+          - { label: "Années d'expérience", name: "experience", widget: "string" }
+          - { label: "Adresse", name: "address", widget: "string" }
+          - { label: "Lien Instagram", name: "instagram_url", widget: "string" }
+          - { label: "Lien Facebook", name: "facebook_url", widget: "string" }
+
+  - name: "gallery"
+    label: "🖼️ Galerie — Tatouages"
+    folder: "content/gallery"
+    create: true
+    slug: "{{slug}}"
+    label_singular: "Tatouage"
+    fields:
+      - { label: "Titre", name: "title", widget: "string" }
+      - { label: "Photo", name: "image", widget: "image" }
+      - { label: "Catégorie", name: "category", widget: "select",
+          options: ["Animalier", "Portraits", "Manches", "Noir & Gris"] }
+      - { label: "Description courte", name: "description", widget: "string" }
+
+  - name: "reviews"
+    label: "⭐ Avis clients"
+    folder: "content/reviews"
+    create: true
+    slug: "{{slug}}"
+    label_singular: "Avis"
+    fields:
+      - { label: "Prénom et initiale", name: "name", widget: "string" }
+      - { label: "Texte de l'avis", name: "body", widget: "text" }
+      - { label: "Type de tatouage", name: "type", widget: "string" }
