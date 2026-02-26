@@ -68,9 +68,11 @@ function cdnUrl(imagePath, width) {
 function resolveImage(imagePath, title) {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return { url: imagePath, external: true };
-  // Check if local file exists in source tree
+  // Check if local file exists in source tree or static directory
   const localPath = path.join(__dirname, imagePath);
   if (fs.existsSync(localPath)) return { url: imagePath, external: false };
+  const staticPath = path.join(__dirname, 'static', imagePath);
+  if (fs.existsSync(staticPath)) return { url: imagePath, external: false };
   // Fallback to placehold.co
   const text = encodeURIComponent(title || 'Tattoo');
   return { url: `https://placehold.co/600x800/111111/888888?text=${text}`, external: true };
@@ -180,7 +182,14 @@ copyDir(path.join(__dirname, 'admin'), path.join(PUBLIC, 'admin'));
 // 7. Create _redirects
 fs.writeFileSync(path.join(PUBLIC, '_redirects'), '/admin/* /admin/index.html 200\n');
 
-// 8. Ensure uploads directory
+// 8. Copy static assets (CMS uploaded images)
+const STATIC = path.join(__dirname, 'static');
+if (fs.existsSync(STATIC)) {
+  copyDir(STATIC, PUBLIC);
+  console.log('  -> static assets copied');
+}
+
+// 9. Ensure uploads directory
 ensureDir(path.join(PUBLIC, 'images', 'uploads'));
 
 // 9. Generate data JSON files (for JS dynamic fetch)
