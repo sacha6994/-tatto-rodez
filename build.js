@@ -203,4 +203,24 @@ if (fs.existsSync(settingsPath)) {
 fs.writeFileSync(path.join(dataDir, 'gallery.json'), JSON.stringify(gallery, null, 2));
 fs.writeFileSync(path.join(dataDir, 'reviews.json'), JSON.stringify(reviews, null, 2));
 
+// 10. Generate robots.txt
+fs.writeFileSync(path.join(PUBLIC, 'robots.txt'), `User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://www.redmoontattoo.fr/sitemap.xml
+`);
+
+// 11. Generate sitemap.xml
+fs.writeFileSync(path.join(PUBLIC, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.redmoontattoo.fr/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+`);
+
 console.log('Build complete!');

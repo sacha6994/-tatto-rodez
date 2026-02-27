@@ -26,7 +26,6 @@
   "name": "Redmoon Tattoo",
   "description": "Salon de tatouage spécialisé en réalisme animalier, portraits et noir & gris à Rodez depuis 2016.",
   "url": "https://www.redmoontattoo.fr",
-  "telephone": "",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "22 rue du Bal",
@@ -1845,6 +1844,8 @@
 </head>
 <body>
 
+<a href="#about" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:10001;background:var(--blood);color:#fff;padding:0.5rem 1rem;font-family:'Cinzel',serif;font-size:0.8rem;text-decoration:none;" onfocus="this.style.left='1rem';this.style.top='1rem';this.style.width='auto';this.style.height='auto';" onblur="this.style.left='-9999px';this.style.width='1px';this.style.height='1px';">Aller au contenu</a>
+
 <div class="cursor-glow" id="cursorGlow"></div>
 
 <!-- NAVIGATION -->
@@ -1861,9 +1862,9 @@
     <li><a href="#avis">Avis</a></li>
   </ul>
   <a href="#contact" class="nav-cta">Réserver</a>
-  <div class="hamburger" id="hamburger" onclick="toggleNav()">
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Ouvrir le menu de navigation" aria-expanded="false" type="button">
     <span></span><span></span><span></span>
-  </div>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -2203,16 +2204,16 @@
     </div>
     <div class="contact-item">
       <h4>Instagram</h4>
-      <p><a href="https://instagram.com/redmoontattoorodez" target="_blank">@redmoontattoorodez</a></p>
+      <p><a href="https://instagram.com/redmoontattoorodez" target="_blank" rel="noopener noreferrer">@redmoontattoorodez</a></p>
     </div>
     <div class="contact-item">
       <h4>Facebook</h4>
-      <p><a href="https://www.facebook.com/Redmoontattooer/" target="_blank">Redmoon Tattoo</a></p>
+      <p><a href="https://www.facebook.com/Redmoontattooer/" target="_blank" rel="noopener noreferrer">Redmoon Tattoo</a></p>
     </div>
   </div>
   <div class="contact-buttons reveal reveal-delay-3">
-    <a href="https://instagram.com/redmoontattoorodez" target="_blank" class="btn-primary" aria-label="Contacter Redmoon Tattoo sur Instagram">Nous contacter sur Instagram</a>
-    <a href="https://www.facebook.com/Redmoontattooer/" target="_blank" class="btn-secondary">Voir sur Facebook</a>
+    <a href="https://instagram.com/redmoontattoorodez" target="_blank" rel="noopener noreferrer" class="btn-primary" aria-label="Contacter Redmoon Tattoo sur Instagram">Nous contacter sur Instagram</a>
+    <a href="https://www.facebook.com/Redmoontattooer/" target="_blank" rel="noopener noreferrer" class="btn-secondary" aria-label="Voir Redmoon Tattoo sur Facebook">Voir sur Facebook</a>
   </div>
 </section>
 
@@ -2221,8 +2222,8 @@
   <div class="footer-content">
     <div class="footer-logo"><span class="logo-red">Red</span><span class="logo-moon">moon</span></div>
     <div class="footer-social">
-      <a href="https://instagram.com/redmoontattoorodez" target="_blank" title="Instagram">IG</a>
-      <a href="https://www.facebook.com/Redmoontattooer/" target="_blank" title="Facebook">FB</a>
+      <a href="https://instagram.com/redmoontattoorodez" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Suivre Redmoon Tattoo sur Instagram">IG</a>
+      <a href="https://www.facebook.com/Redmoontattooer/" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Suivre Redmoon Tattoo sur Facebook">FB</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -2236,10 +2237,11 @@
 </footer>
 
 <!-- COOKIE BANNER -->
-<div class="cookie-banner" id="cookieBanner">
+<div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Gestion des cookies">
   <p>Ce site utilise uniquement des cookies essentiels au fonctionnement. Aucune donnée n'est collectée à des fins publicitaires.</p>
   <div class="cookie-btns">
-    <button class="cookie-accept" onclick="document.getElementById('cookieBanner').style.display='none'; localStorage.setItem('cookies_ok','1');">Compris</button>
+    <button class="cookie-accept" onclick="document.getElementById('cookieBanner').style.display='none'; localStorage.setItem('cookies_ok','1');">Accepter</button>
+    <button class="cookie-accept" style="background:transparent;border:1px solid #555;color:#aaa;" onclick="document.getElementById('cookieBanner').style.display='none'; localStorage.setItem('cookies_ok','refused');">Refuser</button>
   </div>
 </div>
 
@@ -2262,10 +2264,12 @@
     <a href="https://www.netlify.com" target="_blank" rel="noopener">https://www.netlify.com</a></p>
     <h3>Propriété intellectuelle</h3>
     <p>L'ensemble du contenu de ce site (textes, images, tatouages photographiés) est la propriété exclusive de Redmoon Tattoo. Toute reproduction, même partielle, est interdite sans autorisation préalable.</p>
-    <h3>Données personnelles</h3>
-    <p>Ce site ne collecte aucune donnée personnelle. Aucun cookie de traçage ou publicitaire n'est utilisé. Seuls des cookies techniques essentiels au fonctionnement du site peuvent être déposés.</p>
+    <h3>Données personnelles & Cookies</h3>
+    <p>Ce site ne collecte aucune donnée personnelle. Aucun formulaire de contact, newsletter, ou outil d'analyse n'est utilisé. Aucun cookie de traçage ou publicitaire n'est déposé. Seuls des cookies techniques strictement nécessaires au fonctionnement du site peuvent être utilisés (mémorisation du choix cookies).</p>
+    <p>Les polices d'écriture sont chargées depuis Google Fonts, ce qui implique la transmission de votre adresse IP aux serveurs de Google LLC (États-Unis). Ce traitement repose sur notre intérêt légitime (affichage du site).</p>
+    <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données, ainsi que d'un droit d'opposition et de limitation du traitement. Vous pouvez exercer ces droits en nous contactant via les réseaux sociaux ci-dessous. Vous pouvez également introduire une réclamation auprès de la CNIL (www.cnil.fr).</p>
     <h3>Contact</h3>
-    <p>Pour toute question, contactez-nous via <a href="https://instagram.com/redmoontattoorodez" target="_blank">Instagram</a> ou <a href="https://www.facebook.com/Redmoontattooer/" target="_blank">Facebook</a>.</p>
+    <p>Pour toute question, contactez-nous via <a href="https://instagram.com/redmoontattoorodez" target="_blank" rel="noopener noreferrer">Instagram</a> ou <a href="https://www.facebook.com/Redmoontattooer/" target="_blank" rel="noopener noreferrer">Facebook</a>.</p>
   </div>
 </div>
 
@@ -2598,7 +2602,7 @@
 </script>
 
 <!-- Netlify Identity Widget -->
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>
   if (window.netlifyIdentity) {
     window.netlifyIdentity.on("init", user => {
