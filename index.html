@@ -51,6 +51,7 @@
 <link rel="preload" href="/fonts/cinzel-decorative-900.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/cormorant-300.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/css/effects.css">
 <link rel="preconnect" href="https://identity.netlify.com">
 <link rel="dns-prefetch" href="https://identity.netlify.com">
 <style>
@@ -639,11 +640,6 @@
     transform: translateX(8px);
   }
 
-  /* Magnetic pull effect via JS */
-  .hero-cta.magnetic {
-    transition: transform 0.2s ease-out, color 0.4s ease, border-color 0.4s ease;
-  }
-
   .scroll-indicator {
     position: absolute;
     bottom: 3rem;
@@ -873,7 +869,7 @@
     border: 1px solid #1e1e1e;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     cursor: default;
   }
 
@@ -1572,17 +1568,6 @@
     width: 100%;
   }
 
-  /* === CURSOR GLOW INTERACTIVE === */
-  .cursor-glow {
-    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
-  }
-
-  .cursor-glow.expanded {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(192,57,43,0.15) 0%, transparent 70%);
-  }
-
   /* === REVEAL ANIMATIONS === */
   .reveal {
     opacity: 0;
@@ -1995,6 +1980,9 @@
 </head>
 <body>
 
+<!-- Scroll Progress Indicator -->
+<div class="scroll-progress" aria-hidden="true"></div>
+
 <a href="#about" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:10001;background:var(--blood);color:#fff;padding:0.5rem 1rem;font-family:'Cinzel',serif;font-size:0.8rem;text-decoration:none;" onfocus="this.style.left='1rem';this.style.top='1rem';this.style.width='auto';this.style.height='auto';" onblur="this.style.left='-9999px';this.style.width='1px';this.style.height='1px';">Aller au contenu</a>
 
 <div class="cursor-glow" id="cursorGlow"></div>
@@ -2022,6 +2010,7 @@
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="smoke-layer"></div>
+  <div class="noise-overlay" aria-hidden="true"></div>
   <div class="moon-wash" id="moonWash"></div>
   <div class="moon" id="heroMoon"></div>
   <div class="moon-particles" id="moonParticles"></div>
@@ -2417,7 +2406,7 @@
     <p>L'ensemble du contenu de ce site (textes, images, tatouages photographiés) est la propriété exclusive de Redmoon Tattoo. Toute reproduction, même partielle, est interdite sans autorisation préalable.</p>
     <h3>Données personnelles & Cookies</h3>
     <p>Ce site ne collecte aucune donnée personnelle. Aucun formulaire de contact, newsletter, ou outil d'analyse n'est utilisé. Aucun cookie de traçage ou publicitaire n'est déposé. Seuls des cookies techniques strictement nécessaires au fonctionnement du site peuvent être utilisés (mémorisation du choix cookies).</p>
-    <p>Les polices d'écriture sont chargées depuis Google Fonts, ce qui implique la transmission de votre adresse IP aux serveurs de Google LLC (États-Unis). Ce traitement repose sur notre intérêt légitime (affichage du site).</p>
+    <p>Les polices d'écriture sont auto-hébergées sur notre serveur. Aucune donnée n'est transmise à des tiers pour l'affichage des polices.</p>
     <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données, ainsi que d'un droit d'opposition et de limitation du traitement. Vous pouvez exercer ces droits en nous contactant via les réseaux sociaux ci-dessous. Vous pouvez également introduire une réclamation auprès de la CNIL (www.cnil.fr).</p>
     <h3>Contact</h3>
     <p>Pour toute question, contactez-nous via <a href="https://instagram.com/redmoontattoorodez" target="_blank" rel="noopener noreferrer">Instagram</a> ou <a href="https://www.facebook.com/Redmoontattooer/" target="_blank" rel="noopener noreferrer">Facebook</a>.</p>
@@ -2498,28 +2487,6 @@
     heroTitle.classList.remove('morphed');
     heroSubtitle.classList.add('morphing');
     resetT1 = setTimeout(() => { heroSubtitle.textContent = 'Réalisme animalier, portraits & dessins — depuis 2016'; heroSubtitle.classList.remove('morphing'); }, 500);
-  });
-
-  // Magnetic CTA button effect
-  const cta = document.querySelector('.hero-cta');
-  if (cta) {
-    cta.classList.add('magnetic');
-    cta.addEventListener('mousemove', (e) => {
-      const rect = cta.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      cta.style.transform = `translate(${x * 0.25}px, ${y * 0.35}px)`;
-    });
-    cta.addEventListener('mouseleave', () => {
-      cta.style.transform = 'translate(0, 0)';
-    });
-  }
-
-  // Cursor glow
-  const glow = document.getElementById('cursorGlow');
-  document.addEventListener('mousemove', e => {
-    glow.style.left = e.clientX + 'px';
-    glow.style.top = e.clientY + 'px';
   });
 
   // Nav scroll
@@ -2609,102 +2576,6 @@
     const cb = document.getElementById('cookieBanner');
     if (cb) cb.style.display = 'none';
   }
-
-  // === NAV ACTIVE SECTION TRACKING ===
-  (function() {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
-    if (!sections.length || !navLinksAll.length) return;
-
-    const navObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('id');
-          navLinksAll.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
-          });
-        }
-      });
-    }, { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' });
-
-    sections.forEach(section => navObserver.observe(section));
-  })();
-
-  // === STAT COUNTER ANIMATION ===
-  (function() {
-    const statItems = document.querySelectorAll('.stat-item h3');
-    if (!statItems.length) return;
-    let animated = false;
-
-    function parseStatValue(text) {
-      text = text.trim();
-      const hasPlus = text.includes('+');
-      const hasK = text.toUpperCase().includes('K');
-      let num = parseFloat(text.replace(/[^0-9.]/g, ''));
-      if (isNaN(num)) return null;
-      return { num, hasPlus, hasK, original: text };
-    }
-
-    function formatStat(current, info) {
-      let val;
-      if (info.hasK) {
-        val = current.toFixed(current >= 10 ? 0 : 1) + 'K';
-      } else {
-        val = Math.round(current).toString();
-      }
-      if (info.hasPlus) val += '+';
-      return val;
-    }
-
-    function animateCounters() {
-      if (animated) return;
-      animated = true;
-      statItems.forEach(el => {
-        const info = parseStatValue(el.textContent);
-        if (!info) return;
-        const duration = 1800;
-        const start = performance.now();
-        function tick(now) {
-          const elapsed = now - start;
-          const progress = Math.min(elapsed / duration, 1);
-          // Ease-out cubic
-          const eased = 1 - Math.pow(1 - progress, 3);
-          el.textContent = formatStat(info.num * eased, info);
-          if (progress < 1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      });
-    }
-
-    const statsRow = document.querySelector('.stats-row');
-    if (statsRow) {
-      const statsObserver = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          animateCounters();
-          statsObserver.disconnect();
-        }
-      }, { threshold: 0.5 });
-      statsObserver.observe(statsRow);
-    }
-  })();
-
-  // === CURSOR GLOW INTERACTIVE (desktop only) ===
-  (function() {
-    if (window.matchMedia('(hover: none)').matches) return;
-    const glow = document.getElementById('cursorGlow');
-    if (!glow) return;
-    const interactiveSelectors = 'a, button, .gallery-item, .filter-btn, .spec-card, .testimonial-card, .footer-social a';
-    document.addEventListener('mouseover', (e) => {
-      if (e.target.closest(interactiveSelectors)) {
-        glow.classList.add('expanded');
-      }
-    });
-    document.addEventListener('mouseout', (e) => {
-      if (e.target.closest(interactiveSelectors)) {
-        glow.classList.remove('expanded');
-      }
-    });
-  })();
 
   // --- CMS Dynamic Content Loading ---
   (function() {
@@ -2857,6 +2728,11 @@
     }
   })();
 </script>
+
+<!-- Premium Effects 2025 -->
+<script defer src="/js/animations.js"></script>
+<script defer src="/js/cursor.js"></script>
+<script defer src="/js/scroll-effects.js"></script>
 
 <!-- Netlify Identity Widget -->
 <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
