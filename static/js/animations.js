@@ -1,32 +1,37 @@
 /* ============================================================
    REDMOON TATTOO — animations.js
-   IntersectionObserver, stagger, counters, tilt, magnetic,
-   text reveal, view transitions, glitch
-   GPU-only: transform + opacity
+   WORKS WITH the existing .reveal system (never replaces it)
+   - Text reveal: enhances titles AFTER .reveal makes them visible
+   - Stagger: adds transition-delay to existing .reveal elements
+   - Counters, nav, tilt, magnetic: independent systems
    ============================================================ */
 (function () {
   'use strict';
 
-  // === REDUCED MOTION CHECK ===
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
   // === 1. TEXT REVEAL CINEMATIC ===
+  // Splits section titles into word-spans for staggered reveal.
+  // The title keeps its .reveal class (existing IO handles opacity).
+  // Once the title is visible, a MutationObserver triggers the word animation.
   function initTextReveal() {
-    const titles = document.querySelectorAll('.section-title, .contact-title');
-    titles.forEach(function (title) {
-      if (title.closest('.hero')) return; // skip hero (has its own animation)
-      if (title.dataset.textRevealed) return;
-      title.dataset.textRevealed = '1';
+    var titles = document.querySelectorAll('.section-title, .contact-title');
 
-      const text = title.innerHTML;
-      // Split by words, preserve HTML tags
-      const words = text.split(/(\s+)/);
+    titles.forEach(function (title) {
+      if (title.closest('.hero')) return;
+      if (title.dataset.textSplit) return;
+      title.dataset.textSplit = '1';
+
+      // Save original HTML
+      var html = title.innerHTML;
+      // Split by whitespace, keep tags
+      var words = html.split(/(\s+)/);
       title.innerHTML = '';
 
       words.forEach(function (word) {
         if (/^\s+$/.test(word)) {
-          title.appendChild(document.createTextNode(word));
+          title.appendChild(document.createTextNode(' '));
           return;
         }
         var wrapper = document.createElement('span');
@@ -36,87 +41,116 @@
         wrapper.appendChild(inner);
         title.appendChild(wrapper);
       });
-    });
 
-    // Observer for triggering reveal
-    var revealObs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        var words = entry.target.querySelectorAll('.text-reveal-word');
-        words.forEach(function (w, i) {
-          setTimeout(function () {
-            w.classList.add('revealed');
-          }, i * 60);
-        });
-        revealObs.unobserve(entry.target);
+      // When the existing .reveal system adds .visible, trigger word animation
+      function checkVisible() {
+        if (title.classList.contains('visible')) {
+          var wordSpans = title.querySelectorAll('.text-reveal-word');
+          wordSpans.forEach(function (w, i) {
+            setTimeout(function () {
+              w.classList.add('revealed');
+            }, i * 60);
+          });
+          return true;
+        }
+        return false;
+      }
+
+      // Check immediately (might already be visible)
+      if (checkVisible()) return;
+
+      // Otherwise watch for .visible class being added
+      var mo = new MutationObserver(function () {
+        if (checkVisible()) {
+          mo.disconnect();
+        }
       });
-    }, { threshold: 0.2, rootMargin: '0px 0px -40px 0px' });
-
-    titles.forEach(function (t) {
-      revealObs.observe(t);
+      mo.observe(title, { attributes: true, attributeFilter: ['class'] });
     });
   }
 
   // === 2. VIEW TRANSITIONS API (Gallery Filters) ===
   function initViewTransitions() {
+    if (!('startViewTransition' in document)) return;
+
     var galleryGrid = document.getElementById('galleryGrid');
     if (!galleryGrid) return;
 
-    // Tag the grid for view-transition
+    // Tag the grid for CSS view-transition-name
     galleryGrid.style.viewTransitionName = 'gallery-grid';
 
-    var filterBtns = document.querySelectorAll('.filter-btn');
-    filterBtns.forEach(function (btn) {
+    // Wrap each filter button click in a View Transition
+    document.querySelectorAll('.filter-btn').forEach(function (btn) {
+      var origClick = null;
+
       btn.addEventListener('click', function (e) {
-        // If View Transitions API is available, wrap the filter change
-        if ('startViewTransition' in document) {
-          e.stopImmediatePropagation();
-          document.startViewTransition(function () {
-            // Re-dispatch click to trigger the existing filter logic
-            triggerFilter(btn);
+        // Prevent the original handler, wrap in view transition
+        e.preventDefault();
+        e.stopPropagation();
+
+        document.startViewTransition(function () {
+          // Manually trigger the filter logic
+          document.querySelectorAll('.filter-btn').forEach(function (b) {
+            b.classList.remove('active');
           });
-        }
-        // else: normal click, existing handler fires
-      }, { capture: true }); // capture phase to run before existing handler
+          btn.classList.add('active');
+
+          var text = btn.textContent.trim();
+          var filter = (text === 'Tout') ? 'all' : text;
+          var allItems = Array.from(galleryGrid.querySelectorAll('.gallery-item'));
+          var btnMore = document.getElementById('btnLoadMoreGallery');
+
+          allItems.forEach(function (el) {
+            var cat = el.getAttribute('data-category');
+            if (filter === 'all' || cat === filter) {
+              el.classList.remove('gallery-hidden');
+            } else {
+              el.classList.add('gallery-hidden');
+            }
+          });
+
+          // Page limit
+          var visible = allItems.filter(function (el) {
+            return !el.classList.contains('gallery-hidden');
+          });
+          visible.forEach(function (el, i) {
+            if (i >= 9) el.classList.add('gallery-hidden');
+          });
+
+          if (btnMore) {
+            btnMore.style.display = (visible.length > 9) ? 'inline-block' : 'none';
+          }
+        });
+      }, true); // capture phase — runs before the CMS handler
     });
-
-    function triggerFilter(btn) {
-      // Replicate the existing filter logic
-      document.querySelectorAll('.filter-btn').forEach(function (b) {
-        b.classList.remove('active');
-      });
-      btn.classList.add('active');
-
-      var text = btn.textContent.trim();
-      var filter = (text === 'Tout') ? 'all' : text;
-      var allItems = Array.from(galleryGrid.querySelectorAll('.gallery-item'));
-      var btnMore = document.getElementById('btnLoadMoreGallery');
-      var pageSize = 9;
-
-      allItems.forEach(function (el) {
-        var cat = el.getAttribute('data-category');
-        if (filter === 'all' || cat === filter) {
-          el.classList.remove('gallery-hidden');
-        } else {
-          el.classList.add('gallery-hidden');
-        }
-      });
-
-      // Apply initial page limit
-      var visible = allItems.filter(function (el) {
-        return !el.classList.contains('gallery-hidden');
-      });
-      visible.forEach(function (el, i) {
-        if (i >= pageSize) el.classList.add('gallery-hidden');
-      });
-
-      if (btnMore) {
-        btnMore.style.display = (visible.length > pageSize) ? 'inline-block' : 'none';
-      }
-    }
   }
 
-  // === 3. MAGNETIC BUTTONS (desktop only) ===
+  // === 3. STAGGER REVEAL (enhances existing .reveal) ===
+  // Does NOT add new classes. Just sets transition-delay on .reveal items
+  // so they cascade when the existing IO triggers .visible.
+  function initStaggerReveal() {
+    var grids = [
+      { sel: '.specs-grid', children: '.spec-card' },
+      { sel: '.gallery-grid', children: '.gallery-item' },
+      { sel: '.testimonial-cards', children: '.testimonial-card' }
+    ];
+
+    grids.forEach(function (g) {
+      var container = document.querySelector(g.sel);
+      if (!container) return;
+
+      var children = container.querySelectorAll(g.children);
+      children.forEach(function (child, i) {
+        // Only enhance elements that use .reveal
+        if (child.classList.contains('reveal')) {
+          // Override the fixed delay classes with progressive delay
+          child.style.transitionDelay = (i * 80) + 'ms';
+        }
+      });
+    });
+  }
+
+  // === 4. MAGNETIC BUTTONS (desktop only) ===
   function initMagneticButtons() {
     if (isTouch) return;
 
@@ -145,7 +179,7 @@
     });
   }
 
-  // === 4. CARD TILT 3D (desktop only) ===
+  // === 5. CARD TILT 3D (desktop only) ===
   function initCardTilt() {
     if (isTouch) return;
 
@@ -157,54 +191,14 @@
         var rect = card.getBoundingClientRect();
         var x = (e.clientX - rect.left) / rect.width;
         var y = (e.clientY - rect.top) / rect.height;
-        var rotateY = (x - 0.5) * 8; // ±4deg
-        var rotateX = (0.5 - y) * 8; // ±4deg
+        var rotateY = (x - 0.5) * 8;
+        var rotateX = (0.5 - y) * 8;
         card.style.transform = 'perspective(800px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-4px)';
       });
 
       card.addEventListener('mouseleave', function () {
         card.style.transform = '';
       });
-    });
-  }
-
-  // === 5. STAGGER REVEAL CASCADE ===
-  function initStaggerReveal() {
-    var grids = [
-      { sel: '.specs-grid', children: '.spec-card' },
-      { sel: '.gallery-grid', children: '.gallery-item' },
-      { sel: '.testimonial-cards', children: '.testimonial-card' },
-      { sel: '.process-timeline', children: '.process-step-content, .process-step-visual, .process-step-number' }
-    ];
-
-    grids.forEach(function (g) {
-      var container = document.querySelector(g.sel);
-      if (!container) return;
-
-      var children = container.querySelectorAll(g.children);
-      children.forEach(function (child) {
-        child.classList.add('stagger-child');
-      });
-
-      var staggerObs = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-
-          var items = entry.target.querySelectorAll('.stagger-child');
-          items.forEach(function (item, i) {
-            var delay = i * 80;
-            item.style.transitionDelay = delay + 'ms';
-            // Use rAF to batch DOM reads
-            requestAnimationFrame(function () {
-              item.classList.add('stagger-visible');
-            });
-          });
-
-          staggerObs.unobserve(entry.target);
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
-
-      staggerObs.observe(container);
     });
   }
 
@@ -247,7 +241,6 @@
         function tick(now) {
           var elapsed = now - start;
           var progress = Math.min(elapsed / duration, 1);
-          // Ease-out cubic
           var eased = 1 - Math.pow(1 - progress, 3);
           el.textContent = formatStat(info.num * eased, info);
           if (progress < 1) requestAnimationFrame(tick);
@@ -290,7 +283,6 @@
 
   // === INIT ===
   if (prefersReduced) {
-    // Only init counters & nav tracking — skip animations
     initCounters();
     initNavTracking();
     return;
@@ -298,9 +290,9 @@
 
   initTextReveal();
   initViewTransitions();
+  initStaggerReveal();
   initMagneticButtons();
   initCardTilt();
-  initStaggerReveal();
   initCounters();
   initNavTracking();
 
