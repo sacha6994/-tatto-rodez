@@ -1479,6 +1479,110 @@
 
   .footer-bottom a:hover { color: var(--blood-bright); }
 
+  /* === UNIVERSAL BUTTON EFFECTS === */
+  .hero-cta:active,
+  .nav-cta:active,
+  .btn-primary:active,
+  .btn-secondary:active,
+  .btn-load-more:active,
+  .filter-btn:active,
+  .cookie-accept:active {
+    transform: translateY(0px) scale(0.97);
+    box-shadow: 0 2px 8px rgba(180, 0, 0, 0.2);
+    transition-duration: 0.1s;
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-load-more:hover {
+    transform: translateY(-2px);
+  }
+
+  .filter-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .cookie-accept:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(180, 0, 0, 0.3);
+  }
+
+  /* === GALLERY CARD ELEVATION === */
+  .gallery-item {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(192,57,43,0.15);
+  }
+
+  /* Overlay slide-up */
+  .gallery-item-overlay {
+    transform: translateY(10px);
+  }
+
+  .gallery-item:hover .gallery-item-overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* === SPEC CARD HOVER === */
+  .spec-card {
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .spec-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(192,57,43,0.3);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+
+  /* === TESTIMONIAL CARD LIFT === */
+  .testimonial-card {
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-3px);
+  }
+
+  /* === FOOTER SOCIAL SCALE === */
+  .footer-social a {
+    transition: transform 0.2s ease, border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+  }
+
+  .footer-social a:hover {
+    transform: scale(1.15);
+  }
+
+  /* === NAV ACTIVE LINK === */
+  .nav-links a.active {
+    color: var(--blood-bright);
+  }
+
+  .nav-links a.active::after {
+    width: 100%;
+  }
+
+  /* === CURSOR GLOW INTERACTIVE === */
+  .cursor-glow {
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+  }
+
+  .cursor-glow.expanded {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(192,57,43,0.15) 0%, transparent 70%);
+  }
+
   /* === REVEAL ANIMATIONS === */
   .reveal {
     opacity: 0;
@@ -2505,6 +2609,102 @@
     const cb = document.getElementById('cookieBanner');
     if (cb) cb.style.display = 'none';
   }
+
+  // === NAV ACTIVE SECTION TRACKING ===
+  (function() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+    if (!sections.length || !navLinksAll.length) return;
+
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          navLinksAll.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' });
+
+    sections.forEach(section => navObserver.observe(section));
+  })();
+
+  // === STAT COUNTER ANIMATION ===
+  (function() {
+    const statItems = document.querySelectorAll('.stat-item h3');
+    if (!statItems.length) return;
+    let animated = false;
+
+    function parseStatValue(text) {
+      text = text.trim();
+      const hasPlus = text.includes('+');
+      const hasK = text.toUpperCase().includes('K');
+      let num = parseFloat(text.replace(/[^0-9.]/g, ''));
+      if (isNaN(num)) return null;
+      return { num, hasPlus, hasK, original: text };
+    }
+
+    function formatStat(current, info) {
+      let val;
+      if (info.hasK) {
+        val = current.toFixed(current >= 10 ? 0 : 1) + 'K';
+      } else {
+        val = Math.round(current).toString();
+      }
+      if (info.hasPlus) val += '+';
+      return val;
+    }
+
+    function animateCounters() {
+      if (animated) return;
+      animated = true;
+      statItems.forEach(el => {
+        const info = parseStatValue(el.textContent);
+        if (!info) return;
+        const duration = 1800;
+        const start = performance.now();
+        function tick(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease-out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = formatStat(info.num * eased, info);
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    const statsRow = document.querySelector('.stats-row');
+    if (statsRow) {
+      const statsObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          animateCounters();
+          statsObserver.disconnect();
+        }
+      }, { threshold: 0.5 });
+      statsObserver.observe(statsRow);
+    }
+  })();
+
+  // === CURSOR GLOW INTERACTIVE (desktop only) ===
+  (function() {
+    if (window.matchMedia('(hover: none)').matches) return;
+    const glow = document.getElementById('cursorGlow');
+    if (!glow) return;
+    const interactiveSelectors = 'a, button, .gallery-item, .filter-btn, .spec-card, .testimonial-card, .footer-social a';
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.closest(interactiveSelectors)) {
+        glow.classList.add('expanded');
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.closest(interactiveSelectors)) {
+        glow.classList.remove('expanded');
+      }
+    });
+  })();
 
   // --- CMS Dynamic Content Loading ---
   (function() {
