@@ -1,0 +1,12 @@
+{
+  "name": "redmoon-tattoo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site vitrine Redmoon Tattoo — Rodez",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
