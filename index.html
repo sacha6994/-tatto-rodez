@@ -2489,6 +2489,15 @@
     resetT1 = setTimeout(() => { heroSubtitle.textContent = 'Réalisme animalier, portraits & dessins — depuis 2016'; heroSubtitle.classList.remove('morphing'); }, 500);
   });
 
+  // Cursor glow (ambient red halo follows mouse)
+  const glow = document.getElementById('cursorGlow');
+  if (glow) {
+    document.addEventListener('mousemove', e => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top = e.clientY + 'px';
+    });
+  }
+
   // Nav scroll
   const nav = document.getElementById('mainNav');
   window.addEventListener('scroll', () => {

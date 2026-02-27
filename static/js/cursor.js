@@ -1,6 +1,7 @@
 /* ============================================================
    REDMOON TATTOO — cursor.js
    Smooth custom cursor with lerp interpolation
+   Works ON TOP of the ambient cursor-glow (never hides it)
    Desktop only — zero impact on touch devices
    ============================================================ */
 (function () {
@@ -18,12 +19,11 @@
   document.body.appendChild(dot);
   document.body.appendChild(ring);
 
-  // Activate custom cursor (hide default)
+  // Activate custom cursor (hide default arrow only)
   document.body.classList.add('custom-cursor-active');
 
-  // Hide old cursor glow (replaced by this)
-  var oldGlow = document.getElementById('cursorGlow');
-  if (oldGlow) oldGlow.style.display = 'none';
+  // NOTE: We do NOT hide the #cursorGlow — it's the ambient red halo
+  // that gives the site its atmosphere. The dot+ring overlay on top.
 
   // State
   var mouseX = -100, mouseY = -100;
@@ -31,12 +31,10 @@
   var ringX = -100, ringY = -100;
   var visible = false;
 
-  // Lerp (linear interpolation)
   function lerp(a, b, f) {
     return a + (b - a) * f;
   }
 
-  // Track mouse
   document.addEventListener('mousemove', function (e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
