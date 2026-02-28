@@ -245,6 +245,7 @@
 /* === CUSTOM CURSOR — INK QUILL === */
 * { cursor: none !important; }
 
+/* FIX: offset ajusté pour la nouvelle pointe de plume à (9.5, 33.5) */
 #custom-cursor {
   position: fixed;
   top: 0;
@@ -253,7 +254,7 @@
   height: 36px;
   pointer-events: none;
   z-index: 99999;
-  transform: translate(-4px, -32px); /* pointe du bec = point de clic */
+  transform: translate(-9px, -33px); /* FIX: pointe du bec = point de clic */
   transition: transform 0.05s linear;
   will-change: transform;
 }
@@ -267,10 +268,11 @@
   transform: scale(1.3) rotate(-5deg);
 }
 
+/* FIX: ink-drop repositionné sous la nouvelle pointe */
 #cursor-ink-drop {
   position: absolute;
-  bottom: -2px;
-  left: 10px;
+  bottom: -4px;
+  left: 6px;
   width: 5px;
   height: 5px;
   background: #c0392b;
