@@ -15,7 +15,7 @@
   pointer-events: none;
   transform-origin: left;
   transform: scaleX(0);
-  background: linear-gradient(90deg, var(--blood) 0%, var(--blood-bright) 50%, #ff6b6b 100%);
+  background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-light) 100%);
 }
 
 /* Modern browsers: CSS scroll-driven animation */
@@ -275,7 +275,7 @@
   left: 6px;
   width: 5px;
   height: 5px;
-  background: #c0392b;
+  background: #A02020;
   border-radius: 50%;
   opacity: 0;
   transform: scale(0);
