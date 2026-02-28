@@ -62,8 +62,8 @@
     --blood-bright: #e74c3c;
     --moon-glow: #f0f0f0;
     --bone: #F5E6D3;
-    --smoke: #111111;
-    --ink: #0a0a0a;
+    --smoke: #0f0f0f;
+    --ink: #0f0f0f;
     --charcoal: #1e1e1e;
     --ash: #2a2a2a;
     --fog: rgba(255,255,255,0.06);
@@ -95,17 +95,9 @@
   ::-webkit-scrollbar-track { background: var(--ink); }
   ::-webkit-scrollbar-thumb { background: var(--blood); border-radius: 3px; }
 
-  /* === MOON CURSOR GLOW === */
+  /* === MOON CURSOR GLOW (disabled — clean dark bg) === */
   .cursor-glow {
-    position: fixed;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(192,57,43,0.1) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: opacity 0.3s;
+    display: none;
   }
 
   /* === NAVIGATION === */
@@ -300,11 +292,7 @@
   .hero-bg {
     position: absolute;
     inset: 0;
-    background:
-      radial-gradient(ellipse at 20% 50%, rgba(192,57,43,0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(192,57,43,0.08) 0%, transparent 40%),
-      radial-gradient(ellipse at 50% 80%, rgba(30,0,0,0.3) 0%, transparent 60%),
-      var(--ink);
+    background: var(--ink);
   }
 
   /* Animated smoke */
@@ -736,6 +724,7 @@
     line-height: 1.8;
     color: #888888;
     max-width: 600px;
+    word-spacing: normal;
   }
 
   /* === DIVIDER === */
@@ -956,7 +945,7 @@
 
   .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     max-width: 1200px;
     margin: 0 auto;
@@ -1019,10 +1008,10 @@
   .gallery-item.gallery-hidden { display: none; }
 
   @keyframes galleryFadeIn {
-    from { opacity: 0; transform: translateY(15px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .gallery-fade-in { animation: galleryFadeIn 0.3s ease forwards; }
+  .gallery-fade-in { animation: galleryFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
   .gallery-load-more {
     text-align: center;
@@ -1033,19 +1022,20 @@
   .btn-load-more {
     font-family: 'Cinzel', serif;
     font-size: 0.7rem;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
     padding: 0.8rem 2.5rem;
-    border: 1px solid #1e1e1e;
+    border: 1px solid #c0392b;
     background: transparent;
-    color: var(--moon-glow);
+    color: #c0392b;
     cursor: pointer;
     transition: all 0.3s ease;
   }
 
   .btn-load-more:hover {
-    border-color: var(--blood);
+    border-color: var(--blood-bright);
     background: rgba(192,57,43,0.1);
+    color: var(--moon-glow);
     box-shadow: 0 4px 20px rgba(192,57,43,0.15);
   }
 
@@ -1408,7 +1398,7 @@
   /* === FOOTER === */
   footer {
     padding: 4rem 3rem 2rem;
-    background: #080808;
+    background: #0a0a0a;
     border-top: 1px solid #1e1e1e;
   }
 
@@ -1594,6 +1584,7 @@
     .specs-grid { grid-template-columns: repeat(2, 1fr); }
     .gallery-grid { grid-template-columns: repeat(3, 1fr); }
     .testimonial-cards { grid-template-columns: 1fr 1fr; }
+    .gallery-item { aspect-ratio: 1; }
   }
 
   @media (max-width: 768px) {
@@ -1766,15 +1757,122 @@
     .stat-item h3 { font-size: 1.3rem; }
     .stat-item p { font-size: 0.55rem; letter-spacing: 0.15em; }
 
-    /* --- Galerie 1 colonne --- */
-    .gallery-grid { grid-template-columns: 1fr; gap: 10px; }
-    .gallery-item { aspect-ratio: 4/5; }
+    /* --- Galerie 2 colonnes sur petit écran --- */
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .gallery-item { aspect-ratio: 1; }
 
     /* --- Spécialités --- */
     .spec-card { padding: 1.5rem 1rem; }
 
     /* --- Contact full width --- */
     .contact-buttons { max-width: 100%; }
+
+    /* --- Section text minimum 16px --- */
+    .section-text { font-size: 1rem; }
+  }
+
+  /* === BREAKPOINT 390px — petits mobiles === */
+  @media (max-width: 390px) {
+    section { padding: 3rem 0.8rem; }
+
+    /* --- Hero --- */
+    .hero-title { font-size: clamp(1.6rem, 11vw, 2.4rem); }
+    .hero-pre { font-size: 0.55rem; letter-spacing: 0.15em; }
+    .hero-subtitle { font-size: 0.8rem; letter-spacing: 0.1em; }
+    .hero-cta {
+      font-size: 0.6rem;
+      padding: 0.75rem 1.2rem;
+      letter-spacing: 0.15em;
+      width: 100%;
+      justify-content: center;
+    }
+    .hero-content { padding: 0 0.5rem; }
+    .moon { width: 32px; height: 32px; top: 6%; right: 3%; }
+
+    /* --- Section titles --- */
+    .section-title {
+      font-size: clamp(1.3rem, 6vw, 1.8rem);
+      letter-spacing: 0.01em;
+      word-spacing: normal;
+    }
+    .contact-title {
+      font-size: clamp(1.3rem, 6vw, 1.8rem);
+    }
+    .section-label { font-size: 0.55rem; letter-spacing: 0.3em; }
+    .section-text { font-size: 1rem; line-height: 1.7; }
+
+    /* --- Stats en 3 colonnes serrées --- */
+    .stats-row {
+      flex-direction: row;
+      gap: 0.5rem;
+      justify-content: space-between;
+    }
+    .stat-item {
+      text-align: center;
+      flex: 1;
+      min-width: 0;
+    }
+    .stat-item h3 { font-size: 1.1rem; }
+    .stat-item p { font-size: 0.5rem; letter-spacing: 0.1em; }
+
+    /* --- Spécialités --- */
+    .spec-card { padding: 1.2rem 0.8rem; }
+    .spec-card h3 { font-size: 0.9rem; }
+    .spec-card p { font-size: 0.85rem; }
+    .spec-icon { width: 36px; height: 36px; }
+
+    /* --- Galerie 2 colonnes --- */
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .gallery-item { aspect-ratio: 1; }
+    .gallery-badge { font-size: 0.45rem; padding: 0.15rem 0.4rem; }
+    .gallery-item-info h4 { font-size: 0.65rem; }
+
+    /* --- Timeline process --- */
+    .process-timeline {
+      grid-template-columns: 28px 1fr;
+      gap: 0 0.5rem;
+    }
+    .process-timeline::before { left: 14px; }
+    .process-step-number { width: 28px; height: 28px; font-size: 0.75rem; }
+    .process-step-content { padding: 1rem 0.8rem; }
+    .process-step-content h3 { font-size: 0.9rem; }
+    .process-step-content p { font-size: 0.85rem; }
+
+    /* --- Avis --- */
+    .testimonial-card { padding: 1.5rem 1rem; }
+    .testimonial-text { font-size: 0.9rem; }
+    .testimonial-author-info h4 { font-size: 0.8rem; }
+
+    /* --- Contact --- */
+    .contact { padding: 3.5rem 0.8rem; }
+    .contact-text { font-size: 0.95rem; }
+    .contact-info { gap: 1rem; }
+    .contact-item h4 { font-size: 0.6rem; }
+    .contact-item p { font-size: 0.9rem; }
+
+    /* --- CTAs full-width --- */
+    .btn-primary, .btn-secondary {
+      width: 100%;
+      text-align: center;
+      font-size: 0.65rem;
+      padding: 0.9rem 1rem;
+    }
+    .btn-load-more {
+      width: 100%;
+      font-size: 0.6rem;
+      padding: 0.7rem 1.5rem;
+    }
+
+    /* --- Footer --- */
+    footer { padding: 2rem 0.8rem 1rem; }
+    .footer-logo { font-size: 1rem; }
+    .footer-social a { width: 40px; height: 40px; }
+    .footer-bottom { font-size: 0.7rem; }
+
+    /* --- Navigation --- */
+    nav { padding: 0.6rem 0.8rem; }
+    .nav-logo { font-size: 0.95rem; }
+    .nav-cta { font-size: 0.55rem; padding: 0.4rem 0.8rem; }
   }
 
   /* Cookie banner */
@@ -2588,7 +2686,7 @@
 
   // --- CMS Dynamic Content Loading ---
   (function() {
-    var GALLERY_PAGE_SIZE = 9;
+    var GALLERY_PAGE_SIZE = 8;
     var REVIEWS_DEFAULT = 3;
 
     // --- Settings ---

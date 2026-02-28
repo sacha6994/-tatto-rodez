@@ -23,21 +23,26 @@
       if (title.dataset.textSplit) return;
       title.dataset.textSplit = '1';
 
-      // Save original HTML
+      // Save original HTML and split handling <br> tags
       var html = title.innerHTML;
-      // Split by whitespace, keep tags
-      var words = html.split(/(\s+)/);
+      // Normalize <br> variants to a placeholder, then split
+      var normalized = html.replace(/<br\s*\/?>/gi, ' <br> ');
+      var tokens = normalized.split(/(\s+|<br>)/);
       title.innerHTML = '';
 
-      words.forEach(function (word) {
-        if (/^\s+$/.test(word)) {
+      tokens.forEach(function (token) {
+        if (/^\s*$/.test(token)) {
           title.appendChild(document.createTextNode(' '));
+          return;
+        }
+        if (/^<br>$/i.test(token.trim())) {
+          title.appendChild(document.createElement('br'));
           return;
         }
         var wrapper = document.createElement('span');
         wrapper.className = 'text-reveal-word';
         var inner = document.createElement('span');
-        inner.innerHTML = word;
+        inner.innerHTML = token;
         wrapper.appendChild(inner);
         title.appendChild(wrapper);
       });
