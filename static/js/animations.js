@@ -16,6 +16,9 @@
   // The title keeps its .reveal class (existing IO handles opacity).
   // Once the title is visible, a MutationObserver triggers the word animation.
   function initTextReveal() {
+    // Skip text splitting on mobile — prevents layout issues
+    if (window.innerWidth <= 768) return;
+
     var titles = document.querySelectorAll('.section-title, .contact-title');
 
     titles.forEach(function (title) {

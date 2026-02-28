@@ -1017,6 +1017,28 @@
     text-align: center;
     max-width: 1200px;
     margin: 3rem auto 0;
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .gallery-load-more {
+      display: block;
+    }
+    .gallery-load-more .btn-load-more {
+      display: flex !important;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      margin-top: 0;
+      padding: 14px 32px;
+    }
+    .gallery-item.gallery-hidden-mobile {
+      display: none;
+    }
+    .gallery-item.gallery-hidden-mobile.gallery-revealed {
+      display: block;
+      animation: galleryFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
   }
 
   .btn-load-more {
@@ -1187,7 +1209,25 @@
     }
     .process-step-visual { display: none; }
     .process-step-number { width: 36px; height: 36px; font-size: 0.9rem; }
-    .process-step-content { padding: 1.2rem 1rem; }
+    .process-step-content {
+      padding: 1.2rem 1rem;
+      width: 100%;
+      max-width: none;
+    }
+    .process-step-content p {
+      word-break: normal;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+    .process-step-content p span,
+    .process-step-content p .word,
+    .process-step-content p .text-reveal-word,
+    .process-step-content .text-reveal-word {
+      display: inline !important;
+      width: auto !important;
+      overflow: visible !important;
+      white-space: normal !important;
+    }
   }
 
   /* === TESTIMONIALS === */
@@ -2085,6 +2125,23 @@
 
 <div class="cursor-glow" id="cursorGlow"></div>
 
+<!-- Custom ink quill cursor -->
+<div id="custom-cursor">
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Corps de la plume -->
+    <path d="M28 4 L8 28 L10 32 L14 30 Z" fill="#f5f0e8" opacity="0.9"/>
+    <!-- Détail du bec -->
+    <path d="M14 30 L10 32 L11 28 Z" fill="#c0392b"/>
+    <!-- Vane gauche -->
+    <path d="M28 4 L18 10 L8 28 L16 20 Z" fill="#f5f0e8" opacity="0.6"/>
+    <!-- Vane droite -->
+    <path d="M28 4 L22 14 L14 30 L20 22 Z" fill="#f5f0e8" opacity="0.85"/>
+    <!-- Nervure centrale -->
+    <line x1="28" y1="4" x2="11" y2="30" stroke="#c0392b" stroke-width="0.8" opacity="0.7"/>
+  </svg>
+  <div id="cursor-ink-drop"></div>
+</div>
+
 <!-- NAVIGATION -->
 <nav id="mainNav">
   <a href="#" class="nav-logo">
@@ -2729,13 +2786,14 @@
         .catch(function() { /* settings not available */ });
     } catch(e) {}
 
-    // --- Gallery: pagination + filters ---
+    // --- Gallery: desktop shows all, mobile shows 2 + "Voir plus" ---
     var galleryGrid = document.getElementById('galleryGrid');
     var btnMore = document.getElementById('btnLoadMoreGallery');
+    var isMobileGallery = window.innerWidth <= 768;
+
     if (galleryGrid) {
       var allItems = Array.from(galleryGrid.querySelectorAll('.gallery-item'));
       var currentFilter = 'all';
-      var galleryPage = 0;
 
       function getFiltered() {
         if (currentFilter === 'all') return allItems;
@@ -2744,41 +2802,54 @@
         });
       }
 
-      function applyGalleryPagination() {
+      function applyGalleryLayout() {
         var filtered = getFiltered();
-        var limit = (galleryPage + 1) * GALLERY_PAGE_SIZE;
 
-        filtered.forEach(function(el, i) {
-          if (i < limit) {
+        if (isMobileGallery) {
+          // Mobile: show first 2, hide rest with mobile class
+          filtered.forEach(function(el, i) {
             el.classList.remove('gallery-hidden');
-            if (i >= limit - GALLERY_PAGE_SIZE && galleryPage > 0) {
-              el.classList.add('gallery-fade-in');
+            el.classList.remove('gallery-hidden-mobile');
+            if (i >= 2) {
+              el.classList.add('gallery-hidden-mobile');
             }
             observer.observe(el);
-          } else {
-            el.classList.add('gallery-hidden');
-            el.classList.remove('gallery-fade-in');
+          });
+          // Hide non-matching filter items
+          allItems.forEach(function(el) {
+            if (currentFilter !== 'all' && el.getAttribute('data-category') !== currentFilter) {
+              el.classList.add('gallery-hidden');
+            }
+          });
+          // Show button if more than 2
+          if (btnMore) {
+            btnMore.style.display = (filtered.length > 2) ? 'flex' : 'none';
           }
-        });
-
-        // Hide items not matching filter
-        allItems.forEach(function(el) {
-          if (currentFilter !== 'all' && el.getAttribute('data-category') !== currentFilter) {
-            el.classList.add('gallery-hidden');
+        } else {
+          // Desktop: show all, no button
+          filtered.forEach(function(el) {
+            el.classList.remove('gallery-hidden');
+            el.classList.remove('gallery-hidden-mobile');
+            observer.observe(el);
+          });
+          allItems.forEach(function(el) {
+            if (currentFilter !== 'all' && el.getAttribute('data-category') !== currentFilter) {
+              el.classList.add('gallery-hidden');
+            }
+          });
+          if (btnMore) {
+            btnMore.style.display = 'none';
           }
-        });
-
-        // Show/hide "Voir plus" button
-        if (btnMore) {
-          btnMore.style.display = (filtered.length > limit) ? 'inline-block' : 'none';
         }
       }
 
-      // "Voir plus" button
+      // "Voir plus" button — reveal all hidden mobile items
       if (btnMore) {
         btnMore.addEventListener('click', function() {
-          galleryPage++;
-          applyGalleryPagination();
+          galleryGrid.querySelectorAll('.gallery-hidden-mobile').forEach(function(el) {
+            el.classList.add('gallery-revealed');
+          });
+          btnMore.style.display = 'none';
         });
       }
 
@@ -2791,13 +2862,16 @@
           btn.classList.add('active');
           var text = btn.textContent.trim();
           currentFilter = (text === 'Tout') ? 'all' : text;
-          galleryPage = 0;
-          applyGalleryPagination();
+          // Reset revealed state on filter change
+          allItems.forEach(function(el) {
+            el.classList.remove('gallery-revealed');
+          });
+          applyGalleryLayout();
         });
       });
 
-      // Initial pagination
-      applyGalleryPagination();
+      // Initial layout
+      applyGalleryLayout();
     }
 
     // --- Reviews: show 3 by default, reveal all on click ---
