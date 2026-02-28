@@ -269,7 +269,12 @@
     flex-direction: column;
     gap: 5px;
     cursor: pointer;
-    z-index: 1001;
+    z-index: 1002; /* MOBILE FIX — au-dessus du menu overlay */
+    min-width: 44px; /* MOBILE FIX — touch target minimum */
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
   }
   .hamburger span {
     width: 28px;
@@ -1013,6 +1018,7 @@
   }
   .gallery-fade-in { animation: galleryFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
+  /* MOBILE FIX — Galerie toggle voir plus/moins avec animation fluide */
   .gallery-load-more {
     text-align: center;
     max-width: 1200px;
@@ -1029,16 +1035,44 @@
       width: 100%;
       justify-content: center;
       align-items: center;
+      gap: 0.5rem;
       margin-top: 0;
       padding: 14px 32px;
+      min-height: 44px;
     }
+    /* MOBILE FIX — items cachés sur mobile avec transition fluide */
     .gallery-item.gallery-hidden-mobile {
       display: none;
+      opacity: 0;
+      transform: translateY(20px);
     }
     .gallery-item.gallery-hidden-mobile.gallery-revealed {
       display: block;
+      opacity: 1;
+      transform: translateY(0);
       animation: galleryFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+    /* MOBILE FIX — animation de fermeture (collapse) */
+    .gallery-item.gallery-hidden-mobile.gallery-collapsing {
+      display: block;
+      animation: galleryFadeOut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+  }
+
+  @keyframes galleryFadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(10px); }
+  }
+
+  /* MOBILE FIX — icône du bouton voir plus/moins */
+  .btn-load-more .btn-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 1.1em;
+    line-height: 1;
+  }
+  .btn-load-more[aria-expanded="true"] .btn-icon {
+    transform: rotate(180deg);
   }
 
   .btn-load-more {
@@ -2079,7 +2113,142 @@
     .cursor-glow { display: none; }
   }
 
-  /* Mobile nav open */
+  /* ============================================ */
+  /* === MOBILE FIX — Corrections complètes === */
+  /* ============================================ */
+
+  /* MOBILE FIX — Empêcher tout overflow horizontal global */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* MOBILE FIX — Containers ne dépassent jamais l'écran */
+  @media (max-width: 768px) {
+    /* MOBILE FIX — Containers principaux contraints */
+    section,
+    .about-grid,
+    .specs-grid,
+    .gallery-grid,
+    .gallery-header,
+    .process-timeline,
+    .testimonial-cards,
+    .contact-info,
+    .contact-buttons,
+    .footer-content,
+    .footer-bottom,
+    .hero-content,
+    .section-text,
+    .spec-card,
+    .testimonial-card,
+    .process-step-content {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* MOBILE FIX — Hero title ne déborde pas */
+    .hero-title {
+      word-break: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      padding: 0 0.5rem;
+    }
+
+    /* MOBILE FIX — Hero title words inline pour éviter superposition */
+    .hero-title .word {
+      height: auto;
+      overflow: visible;
+    }
+
+    /* MOBILE FIX — Section text ne déborde pas */
+    .section-text {
+      max-width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    /* MOBILE FIX — About frame invisible sur mobile (cause overflow) */
+    .about-frame {
+      display: none;
+    }
+
+    /* MOBILE FIX — Gallery header title */
+    .gallery-header .section-title {
+      font-size: clamp(1.3rem, 5vw, 2rem);
+    }
+
+    /* MOBILE FIX — Tous les boutons touch target 44px minimum */
+    .hero-cta,
+    .nav-cta,
+    .btn-primary,
+    .btn-secondary,
+    .btn-load-more,
+    .filter-btn,
+    .cookie-accept {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* MOBILE FIX — Nav links touch targets */
+    .nav-links a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* MOBILE FIX — Footer social touch targets */
+    .footer-social a {
+      min-width: 44px;
+      min-height: 44px;
+    }
+
+    /* MOBILE FIX — Divider ne cause pas d'overflow */
+    .divider {
+      padding: 1.5rem 1rem;
+    }
+    .divider-line {
+      width: 60px;
+      flex-shrink: 1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    /* MOBILE FIX — Hero content bien centré sur petit écran */
+    .hero-content {
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    /* MOBILE FIX — Section label ne déborde pas */
+    .section-label {
+      flex-wrap: wrap;
+    }
+
+    /* MOBILE FIX — About image contrainte */
+    .about-image {
+      max-height: 300px;
+      aspect-ratio: 4/3;
+    }
+  }
+
+  @media (max-width: 390px) {
+    /* MOBILE FIX — Gallery filtre plus compact */
+    .filter-btn {
+      font-size: 0.55rem;
+      padding: 0.45rem 0.7rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* MOBILE FIX — Testimonial quote ne déborde pas */
+    .testimonial-card::before {
+      font-size: 3rem;
+      top: 0.5rem;
+      left: 0.8rem;
+    }
+  }
+
+  /* MOBILE FIX — Mobile nav open fullscreen overlay */
   .nav-links.open {
     display: flex;
     flex-direction: column;
@@ -2091,6 +2260,12 @@
     gap: 2.5rem;
     z-index: 1000;
     padding: 2rem;
+    animation: navFadeIn 0.3s ease forwards;
+  }
+
+  @keyframes navFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   .nav-links.open a {
@@ -2098,6 +2273,21 @@
     letter-spacing: 0.2em;
     min-height: 44px;
     display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+  }
+
+  /* MOBILE FIX — Réserver button visible inside mobile nav */
+  .nav-links.open ~ .nav-cta {
+    position: fixed;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    font-size: 0.75rem;
+    padding: 0.9rem 2.5rem;
+    min-height: 44px;
+    display: inline-flex;
     align-items: center;
   }
 
@@ -2328,7 +2518,7 @@
     <!-- GALLERY_ITEMS_END -->
   </div>
   <div class="gallery-load-more">
-    <button class="btn-load-more" id="btnLoadMoreGallery" style="display:none">Voir plus</button>
+    <button class="btn-load-more" id="btnLoadMoreGallery" style="display:none" aria-expanded="false"><span class="btn-text">Voir plus</span> <span class="btn-icon" aria-hidden="true">↓</span></button>
   </div>
 </section>
 
@@ -2681,6 +2871,18 @@
     });
   });
 
+  /* MOBILE FIX — Fermer le menu quand on clique sur "Réserver" */
+  document.querySelector('.nav-cta').addEventListener('click', () => {
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks.classList.contains('open')) {
+      navLinks.classList.remove('open');
+      const hamburger = document.getElementById('hamburger');
+      hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.setAttribute('aria-label', 'Ouvrir le menu de navigation');
+    }
+  });
+
   // Reveal on scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -2843,13 +3045,39 @@
         }
       }
 
-      // "Voir plus" button — reveal all hidden mobile items
+      /* MOBILE FIX — Toggle "Voir plus" / "Voir moins" avec animation fluide */
       if (btnMore) {
         btnMore.addEventListener('click', function() {
-          galleryGrid.querySelectorAll('.gallery-hidden-mobile').forEach(function(el) {
-            el.classList.add('gallery-revealed');
-          });
-          btnMore.style.display = 'none';
+          var isExpanded = btnMore.getAttribute('aria-expanded') === 'true';
+          var hiddenItems = galleryGrid.querySelectorAll('.gallery-hidden-mobile');
+          var btnText = btnMore.querySelector('.btn-text');
+          var btnIcon = btnMore.querySelector('.btn-icon');
+
+          if (!isExpanded) {
+            /* --- Ouvrir : afficher les images cachées --- */
+            hiddenItems.forEach(function(el) {
+              el.classList.remove('gallery-collapsing');
+              el.classList.add('gallery-revealed');
+            });
+            btnMore.setAttribute('aria-expanded', 'true');
+            if (btnText) btnText.textContent = 'Voir moins';
+            if (btnIcon) btnIcon.textContent = '↑';
+          } else {
+            /* --- Fermer : cacher les images avec animation --- */
+            hiddenItems.forEach(function(el) {
+              el.classList.remove('gallery-revealed');
+              el.classList.add('gallery-collapsing');
+            });
+            /* Après l'animation, retirer la classe collapsing */
+            setTimeout(function() {
+              hiddenItems.forEach(function(el) {
+                el.classList.remove('gallery-collapsing');
+              });
+            }, 350);
+            btnMore.setAttribute('aria-expanded', 'false');
+            if (btnText) btnText.textContent = 'Voir plus';
+            if (btnIcon) btnIcon.textContent = '↓';
+          }
         });
       }
 
@@ -2862,10 +3090,18 @@
           btn.classList.add('active');
           var text = btn.textContent.trim();
           currentFilter = (text === 'Tout') ? 'all' : text;
-          // Reset revealed state on filter change
+          /* MOBILE FIX — Reset toggle state on filter change */
           allItems.forEach(function(el) {
             el.classList.remove('gallery-revealed');
+            el.classList.remove('gallery-collapsing');
           });
+          if (btnMore) {
+            btnMore.setAttribute('aria-expanded', 'false');
+            var btnText = btnMore.querySelector('.btn-text');
+            var btnIcon = btnMore.querySelector('.btn-icon');
+            if (btnText) btnText.textContent = 'Voir plus';
+            if (btnIcon) btnIcon.textContent = '↓';
+          }
           applyGalleryLayout();
         });
       });
