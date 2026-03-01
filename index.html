@@ -1247,22 +1247,24 @@
     color: rgba(232,228,223,0.6);
   }
 
-  /* FIX: Processus mobile — placement explicite en grille 2 colonnes */
+  /* FIX: Processus mobile — placement explicite en grille 2 colonnes + alignement numérotation + espacement uniforme */
   @media (max-width: 768px) {
     .process-timeline {
       grid-template-columns: 36px 1fr;
-      gap: 0 0.8rem;
+      gap: 1.25rem 0.8rem;
+      align-items: center;
     }
     .process-timeline::before {
       left: 18px;
     }
     .process-step-visual { display: none; }
-    /* FIX: forcer number en col 1, content en col 2 — empêche le texte vertical */
+    /* FIX: forcer number en col 1, content en col 2 — alignement vertical centré devant la case */
     .process-step-number {
       grid-column: 1;
       width: 36px;
       height: 36px;
       font-size: 0.9rem;
+      align-self: center;
     }
     .process-step-content {
       grid-column: 2;
@@ -1769,11 +1771,13 @@
 
     /* FIX: Processus — grid-column explicite aussi dans ce bloc */
     .process-header h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+    .process-timeline { gap: 1.25rem 0.8rem; align-items: center; }
     .process-step-number {
       grid-column: 1;
       width: 40px;
       height: 40px;
       font-size: 1rem;
+      align-self: center;
     }
     .process-step-content {
       grid-column: 2;
@@ -1928,13 +1932,14 @@
     .gallery-badge { font-size: 0.45rem; padding: 0.15rem 0.4rem; }
     .gallery-item-info h4 { font-size: 0.65rem; }
 
-    /* FIX: Timeline process — même fix grid-column que 768px */
+    /* FIX: Timeline process — même fix grid-column + espacement uniforme entre les cases */
     .process-timeline {
       grid-template-columns: 28px 1fr;
-      gap: 0 0.5rem;
+      gap: 1.25rem 0.5rem;
+      align-items: center;
     }
     .process-timeline::before { left: 14px; }
-    .process-step-number { grid-column: 1; width: 28px; height: 28px; font-size: 0.75rem; }
+    .process-step-number { grid-column: 1; width: 28px; height: 28px; font-size: 0.75rem; align-self: center; }
     .process-step-content { grid-column: 2; padding: 1rem 0.8rem; min-width: 0; }
     .process-step-content h3 { font-size: 0.9rem; }
     .process-step-content p { font-size: 0.85rem; }
@@ -2273,19 +2278,31 @@
     }
   }
 
-  /* MOBILE FIX — Mobile nav open fullscreen overlay */
+  /* MOBILE FIX — Mobile nav open fullscreen overlay + blocage du scroll */
   .nav-links.open {
     display: flex;
     flex-direction: column;
     position: fixed;
     inset: 0;
-    background: rgba(10,10,10,0.98);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    background: rgba(10,10,10,0.99);
     justify-content: center;
     align-items: center;
     gap: 2.5rem;
-    z-index: 1000;
+    z-index: 1001;
     padding: 2rem;
     animation: navFadeIn 0.3s ease forwards;
+  }
+
+  body.menu-open {
+    overflow: hidden !important;
+    touch-action: none;
   }
 
   @keyframes navFadeIn {
@@ -2308,7 +2325,7 @@
     bottom: 3rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1001;
+    z-index: 1002;
     font-size: 0.75rem;
     padding: 0.9rem 2.5rem;
     min-height: 44px;
@@ -2928,16 +2945,34 @@
     hamburger.classList.toggle('active', isOpen);
     hamburger.setAttribute('aria-expanded', isOpen);
     hamburger.setAttribute('aria-label', isOpen ? 'Fermer le menu' : 'Ouvrir le menu de navigation');
+    // Bloquer le scroll du body quand le menu est ouvert (fix scroll cassé)
+    if (isOpen) {
+      document.body.classList.add('menu-open');
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+  }
+
+  function closeMobileNav() {
+    const navLinks = document.getElementById('navLinks');
+    const hamburger = document.getElementById('hamburger');
+    navLinks.classList.remove('open');
+    hamburger.classList.remove('active');
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.setAttribute('aria-label', 'Ouvrir le menu de navigation');
+    document.body.classList.remove('menu-open');
+    document.body.style.overflow = '';
+    document.body.style.touchAction = '';
   }
 
   // Close mobile nav on link click
   document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
-      document.getElementById('navLinks').classList.remove('open');
-      const hamburger = document.getElementById('hamburger');
-      hamburger.classList.remove('active');
-      hamburger.setAttribute('aria-expanded', 'false');
-      hamburger.setAttribute('aria-label', 'Ouvrir le menu de navigation');
+      closeMobileNav();
     });
   });
 
@@ -2945,11 +2980,7 @@
   document.querySelector('.nav-cta').addEventListener('click', () => {
     const navLinks = document.getElementById('navLinks');
     if (navLinks.classList.contains('open')) {
-      navLinks.classList.remove('open');
-      const hamburger = document.getElementById('hamburger');
-      hamburger.classList.remove('active');
-      hamburger.setAttribute('aria-expanded', 'false');
-      hamburger.setAttribute('aria-label', 'Ouvrir le menu de navigation');
+      closeMobileNav();
     }
   });
 
