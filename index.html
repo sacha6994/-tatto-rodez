@@ -1247,7 +1247,7 @@
     color: rgba(232,228,223,0.6);
   }
 
-  /* FIX: Processus mobile — placement explicite en grille 2 colonnes + alignement numérotation + espacement uniforme + marges confortables */
+  /* FIX: Processus mobile — placement explicite en grille 2 colonnes + style identique à l’ordinateur (bordure, glow, ligne) */
   @media (max-width: 768px) {
     .process-timeline {
       grid-template-columns: 36px 1fr;
@@ -1257,15 +1257,21 @@
     }
     .process-timeline::before {
       left: 18px;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--gold-dark), var(--gold-dark), transparent);
+      transform: none;
     }
     .process-step-visual { display: none; }
-    /* FIX: forcer number en col 1, content en col 2 — alignement vertical centré devant la case */
     .process-step-number {
       grid-column: 1;
       width: 36px;
       height: 36px;
       font-size: 0.9rem;
       align-self: center;
+      border: 2px solid var(--gold-dark);
+      background: var(--ink);
+      color: var(--gold);
+      box-shadow: 0 0 20px rgba(200,169,110,0.3);
     }
     .process-step-content {
       grid-column: 2;
@@ -1933,15 +1939,30 @@
     .gallery-badge { font-size: 0.45rem; padding: 0.15rem 0.4rem; }
     .gallery-item-info h4 { font-size: 0.65rem; }
 
-    /* FIX: Timeline process — même fix grid-column + espacement uniforme entre les cases + padding mobile */
+    /* FIX: Timeline process — style cercles et ligne identique au desktop */
     .process-timeline {
       grid-template-columns: 28px 1fr;
       gap: 1.25rem 0.6rem;
       align-items: center;
       padding: 0 0.1rem;
     }
-    .process-timeline::before { left: 14px; }
-    .process-step-number { grid-column: 1; width: 28px; height: 28px; font-size: 0.75rem; align-self: center; }
+    .process-timeline::before {
+      left: 14px;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--gold-dark), var(--gold-dark), transparent);
+      transform: none;
+    }
+    .process-step-number {
+      grid-column: 1;
+      width: 28px;
+      height: 28px;
+      font-size: 0.75rem;
+      align-self: center;
+      border: 2px solid var(--gold-dark);
+      background: var(--ink);
+      color: var(--gold);
+      box-shadow: 0 0 16px rgba(200,169,110,0.3);
+    }
     .process-step-content { grid-column: 2; padding: 1rem 1rem; min-width: 0; }
     .process-step-content h3 { font-size: 0.9rem; }
     .process-step-content p { font-size: 0.85rem; }
