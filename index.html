@@ -2983,15 +2983,15 @@
     });
   });
 
-  // Also trigger pulse when hovering the adjacent step-content
+  // Also trigger pulse when hovering the adjacent step-content (Consultation→Écoute, Création du design→Design, etc.)
   document.querySelectorAll('.process-step-content').forEach(content => {
-    // Find sibling visual in same row (prev or next sibling across the number)
     const parent = content.parentElement;
     const allChildren = Array.from(parent.children);
     const idx = allChildren.indexOf(content);
-    // Visual can be idx-2 or idx+2 (across the number circle)
-    const visual = allChildren[idx + 2] || allChildren[idx - 2];
-    if (visual && visual.classList.contains('process-step-visual')) {
+    const next = allChildren[idx + 2];
+    const prev = allChildren[idx - 2];
+    const visual = (next && next.classList.contains('process-step-visual')) ? next : (prev && prev.classList.contains('process-step-visual')) ? prev : null;
+    if (visual) {
       content.addEventListener('mouseenter', () => visual.classList.add('pulse'));
       content.addEventListener('mouseleave', () => {
         visual.classList.remove('pulse');
