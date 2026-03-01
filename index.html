@@ -1247,12 +1247,13 @@
     color: rgba(232,228,223,0.6);
   }
 
-  /* FIX: Processus mobile — placement explicite en grille 2 colonnes + alignement numérotation + espacement uniforme */
+  /* FIX: Processus mobile — placement explicite en grille 2 colonnes + alignement numérotation + espacement uniforme + marges confortables */
   @media (max-width: 768px) {
     .process-timeline {
       grid-template-columns: 36px 1fr;
-      gap: 1.25rem 0.8rem;
+      gap: 1.25rem 0.9rem;
       align-items: center;
+      padding: 0 0.15rem;
     }
     .process-timeline::before {
       left: 18px;
@@ -1268,7 +1269,7 @@
     }
     .process-step-content {
       grid-column: 2;
-      padding: 1.2rem 1rem;
+      padding: 1.2rem 1.1rem;
       width: 100%;
       min-width: 0; /* FIX: empêche le débordement de la grille */
       max-width: none;
@@ -1700,7 +1701,7 @@
     }
 
     /* --- General sections --- */
-    section { padding: 4rem 1rem; }
+    section { padding: 4rem 1.25rem; }
 
     /* --- Hero --- */
     .hero-content { padding: 0 1rem; }
@@ -1878,7 +1879,7 @@
 
   /* === BREAKPOINT 390px — petits mobiles === */
   @media (max-width: 390px) {
-    section { padding: 3rem 0.8rem; }
+    section { padding: 3rem 1rem; }
 
     /* --- Hero --- */
     .hero-title { font-size: clamp(1.6rem, 11vw, 2.4rem); }
@@ -1932,15 +1933,16 @@
     .gallery-badge { font-size: 0.45rem; padding: 0.15rem 0.4rem; }
     .gallery-item-info h4 { font-size: 0.65rem; }
 
-    /* FIX: Timeline process — même fix grid-column + espacement uniforme entre les cases */
+    /* FIX: Timeline process — même fix grid-column + espacement uniforme entre les cases + padding mobile */
     .process-timeline {
       grid-template-columns: 28px 1fr;
-      gap: 1.25rem 0.5rem;
+      gap: 1.25rem 0.6rem;
       align-items: center;
+      padding: 0 0.1rem;
     }
     .process-timeline::before { left: 14px; }
     .process-step-number { grid-column: 1; width: 28px; height: 28px; font-size: 0.75rem; align-self: center; }
-    .process-step-content { grid-column: 2; padding: 1rem 0.8rem; min-width: 0; }
+    .process-step-content { grid-column: 2; padding: 1rem 1rem; min-width: 0; }
     .process-step-content h3 { font-size: 0.9rem; }
     .process-step-content p { font-size: 0.85rem; }
 
@@ -1976,7 +1978,7 @@
     .footer-bottom { font-size: 0.7rem; }
 
     /* --- Navigation --- */
-    nav { padding: 0.6rem 0.8rem; }
+    nav { padding: 0.6rem 1rem; }
     .nav-logo { font-size: 0.95rem; }
     .nav-cta { font-size: 0.55rem; padding: 0.4rem 0.8rem; }
   }
